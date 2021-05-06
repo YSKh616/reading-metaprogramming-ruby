@@ -7,7 +7,7 @@ class Hoge < String
   Hoge = "hoge"
 
   def hogehoge
-    "hogehoge"
+    "hoge"
   end
 
   def hoge?
