@@ -17,16 +17,12 @@ end
 # - また、2で定義するメソッドは以下を満たすものとする
 #   - メソッドが定義されるのは同時に生成されるオブジェクトのみで、別のA2インスタンスには（同じ値を含む配列を生成時に渡さない限り）定義されない
 class A2
-  def initialize(num)
-    num.each { |n| A2.define_component n }
-  end
+  def initialize(args)
+    args.each do |arg|
+      self.define_singleton_method("hoge_#{arg}") do |n|
+        return dev_team if n.nil?
 
-  def self.define_component(name)
-    define_method("hoge_#{name}") do |m|
-      if m.nil?
-        dev_team
-      else
-        __method__.to_s * m
+        __method__.to_s * n
       end
     end
   end
@@ -43,5 +39,17 @@ end
 # - OriginalAccessorモジュールはincludeされたときのみ、my_attr_accessorメソッドを定義すること
 # - my_attr_accessorはgetter/setterに加えて、boolean値を代入した際のみ真偽値判定を行うaccessorと同名の?メソッドができること
 module OriginalAccessor
+  def self.included(c)
+    def c.my_attr_accessor(v)
+      attr_reader v
+      define_method "#{v}=" do |val|
+        instance_variable_set("@#{v}", val)
+        if (!!val === val)
+          define_singleton_method "#{v}?" do
+            return val
+          end
+        end
+      end
+    end
+  end
 end
-
